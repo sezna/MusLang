@@ -3,12 +3,20 @@ import Editor from 'react-simple-code-editor';
 import './input.css';
 
 export default class Input extends React.Component {
-	testForLoop = "for x in y { 1q. }";
-	testVarDecl = "let x = 5q";
-	testStrings = this.testForLoop + '\n' + this.testVarDecl;
+	initialText = 
+`fn main () { 
+	for x in <1q 2q 3q> { $x }
+	let x = 5q
+	return twinkleTwinkle()
+}
+fn twinkleTwinkle() {
+	let toReturn = <1q 1q 5q 5q 6q 6q 5q>
+	let toReturn = op $toReturn + <4q 4q 3q 3q 2q 2q 1w>
+	return $toReturn
+}`;
 	
 	state = {
-		inputText: this.testStrings
+		inputText: this.initialText
 	}
 	
 	onChange = (e) => {
