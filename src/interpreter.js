@@ -12,10 +12,10 @@ const interpret = (parseResult)  => {
         return "Main function doesn't return a value";
     }
     console.log("main returned", retVal.retVal);
-    if (retVal && retVal.retVal && retVal.retVal.retVal) {
+    if (retVal && retVal.retVal) {
         retVal = retVal.retVal;
     }
-    return render(retVal.retVal);
+    return render(retVal);
     //evaluateFunction(mainFunction.value.funcBody, modifiedVarEnv, modifiedFuncEnv);
 };
 
@@ -39,19 +39,15 @@ const evaluate = (stmt, varEnv, funcEnv) => {
             varEnv[stmt.value.varName] = evaluate(stmt.value.varDef, varEnv, funcEnv).retVal;
             break;
         case "Note":
-            console.log("evaluating note:", stmt)
             retVal = stmt;
             break;
         case "Chord":
-            console.log("Shape of chord: ", stmt.value);
             retVal = stmt.value;
             break;
         case "OpExp":
             retVal = handleOp(stmt.value, varEnv, funcEnv);
             break;
         case "VarExp":
-            console.log("var exp", stmt)
-            console.log("var env is: ", );
             retVal = varEnv[stmt.value];
             break;
         case "FuncDecl":
@@ -61,7 +57,7 @@ const evaluate = (stmt, varEnv, funcEnv) => {
             let { value } = funcEnv[stmt.value.funcName];
             let {argList, body} = value;
             if (argList && stmt.value.argList && argList.length !== stmt.value.argList.length) {
-                console.log("Wrong number of parameters supplied to function", stmt.value.funcName);
+                retVal = "Wrong number of parameters supplied to function: " + stmt.value.funcName;
             }
             let argEnv = {}
             if (argList !== undefined) {
@@ -74,9 +70,7 @@ const evaluate = (stmt, varEnv, funcEnv) => {
             break;
         case "ForLoop":
             let {iterator, collection, loopBody} = stmt.value;
-            console.log("Collection is", collection);
             let result = evaluate(collection, varEnv, funcEnv);
-            console.log("result is", result);
             collection = result.retVal;
             for (const i of collection) {
                 let {modifiedVarEnv, modifiedFuncEnv} = evaluateFunction(loopBody, {...varEnv, [iterator]: i}, funcEnv);
@@ -90,7 +84,11 @@ const evaluate = (stmt, varEnv, funcEnv) => {
         default:
             console.log("Unimplemented evaluation: ", stmt.name);
     }
-    console.log("returning ", retVal, stmt);
+    if (retVal && retVal.retVal !== undefined) {
+        console.log("nested retVal detected", retVal)
+        retVal = retVal.retVal
+    }
+    console.log("unnested retVal", retVal);
     return {
         retVal: retVal,
         modifiedVarEnv: varEnv,

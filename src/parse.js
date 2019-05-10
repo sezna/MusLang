@@ -14,7 +14,7 @@ const Lang = P.createLanguage({
 						  .sepBy(_)).skip(opt_),
 	Literal: (r) => P.alt(r.Note, r.Chord),
 	Note: function() {
-		return P.regexp(/[1-7](s|e|q|h|w)(\.?)/).node("Note");
+		return P.regexp(/(\^|_)?[1-7](s|e|q|h|w)(\.?)/).node("Note");
 	},
 	Chord: (r) => str('<')
 				   .then((r.Note.skip(opt_)).atLeast(2)).desc("Chord needs at least two notes")
@@ -85,10 +85,9 @@ const Lang = P.createLanguage({
 const Parse = (inputString) => {
 	let parseResult = Lang.ValidProgram.parse(inputString);
 	if (parseResult.status === false) {
-		console.log("parse error: ", parseResult.expected);
+		console.log("parse error: ", parseResult);
 		return `Parse Error: expected ${parseResult.expected}`
 	}
-	console.log(parseResult);
 	return  interpret(parseResult);
 }
 
